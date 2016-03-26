@@ -25,6 +25,12 @@ myApp.config(['$routeProvider', function($routeProvider) {
     .when('/band-directors', {
       templateUrl: '/views/templates/band-directors.html',
     })
+    .when('/login', {
+      templateUrl: '/views/templates/login.html',
+    })
+    .when('/register', {
+      templateUrl: '/views/templates/register.html',
+    })
     .otherwise({
       redirectTo: '/home'
     });
