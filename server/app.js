@@ -3,7 +3,8 @@ var app = express();
 var path = require('path');
 var expressJwt = require('express-jwt');
 var bodyParser = require('body-parser');
-var flash = require("connect-flash");
+var connection = require('./modules/connection');
+//var flash = require("connect-flash");
 
 //routes
 var schools = require('./routes/schools');
@@ -11,14 +12,14 @@ var instruments = require('./routes/instruments');
 var index = require('./routes/index');
 var user = require('./routes/user');
 var register = require('./routes/register');
-var connection = require('./modules/connection');
+
 
 var passport = require('./strategies/user_sql.js');
 var session = require('express-session');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(flash());
+
 
 app.use(session({
   secret: 'secret',

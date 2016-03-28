@@ -26,7 +26,7 @@ myApp.config(['$routeProvider', function($routeProvider) {
       templateUrl: '/views/templates/band-directors.html',
     })
     .when('/login', {
-      templateUrl: '/views/templates/login.html',
+      templateUrl: '/views/login.html',
     })
     .when('/register', {
       templateUrl: '/views/templates/register.html',
