@@ -3,18 +3,25 @@ myApp.controller('LoginController', ['$scope', 'UserService', '$mdDialog', '$win
     console.log('inside login controller');
 
     $scope.UserService = UserService;
-
+    $scope.loginErrorMessage;
     $scope.loggedInUser;
 
     $scope.login = function(isValid) {
-        if(isValid) {
+        if (isValid) {
             var user = {
                 username: $scope.username,
                 password: $scope.password
             };
-            $scope.UserService.postLogin(user).then(function () {
-                $mdDialog.hide();
-            });
+            $scope.UserService.postLogin(user).then(
+                function (response) {
+                    if (response === false) {
+                        console.log("bad login");
+                        $scope.loginErrorMessage = 'Invalid Username or Password';
+                    } else {
+                        $mdDialog.hide();
+                    }
+                }
+            )
         }
 
     };
@@ -37,11 +44,6 @@ myApp.controller('LoginController', ['$scope', 'UserService', '$mdDialog', '$win
     $scope.closeModal = function() {
         $mdDialog.hide();
     };
-
-    //$scope.$watch($scope.UserService.watchCurrentUser, function(newValue, oldValue){
-    //    $scope.loggedInUser = $scope.UserService.askForCurrentUser();
-    //
-    //});
 
 
 }]);
