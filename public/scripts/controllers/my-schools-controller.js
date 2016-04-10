@@ -1,6 +1,12 @@
-myApp.controller('MySchoolsController', ['$scope', '$mdDialog', '$mdMedia', 'SchoolsFactory', 'InstrumentsFactory', function($scope, $mdDialog, $mdMedia, SchoolsFactory, InstrumentsFactory, AddSchoolController) {
+myApp.controller('MySchoolsController',
+	['$scope', '$mdDialog', '$mdMedia', 'SchoolsFactory', 'InstrumentsFactory',
+	'DonationsFactory', 'UserService', function($scope, $mdDialog, $mdMedia,
+		SchoolsFactory, InstrumentsFactory,DonationsFactory, UserService, AddSchoolController, tel) {
+
 	$scope.schools = [];
-	$scope.test = 'test';
+	$scope.donations = [];
+
+	SchoolsFactory.userID = UserService.askForCurrentUser().factoryUserId;
 
 	var getInstruments = function() {
 		InstrumentsFactory.factoryGetInstrumentsList().then(function() {});
@@ -10,10 +16,10 @@ myApp.controller('MySchoolsController', ['$scope', '$mdDialog', '$mdMedia', 'Sch
 		InstrumentsFactory.getStates().then(function() {});
 	};
 
-
 	var getSchools = function () {
 		SchoolsFactory.getDirectorSchools().then(function() {
-			$scope.schools = SchoolsFactory.allSchools;
+			$scope.schools = SchoolsFactory.directorSchools;
+			$scope.donations = SchoolsFactory.directorDonations;
 		});
 	};
 
@@ -41,6 +47,19 @@ myApp.controller('MySchoolsController', ['$scope', '$mdDialog', '$mdMedia', 'Sch
 			fullscreen: useFullScreen
 		});
 		SchoolsFactory.currentSchool = school;
+	};
+
+	$scope.donationReceived = function(ev, donation) {
+		var useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen;
+		$mdDialog.show({
+			templateUrl: '../views/modals/donate-received-modal.html',
+			controller: 'DonationReceivedController',
+			parent: angular.element(document.body),
+			targetEvent: ev,
+			clickOutsideToClose: true,
+			fullscreen: useFullScreen
+		});
+		DonationsFactory.currentDonation = donation;
 	};
 
 	getSchools();

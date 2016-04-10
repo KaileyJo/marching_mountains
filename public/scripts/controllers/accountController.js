@@ -7,10 +7,33 @@ myApp.controller('AccountController', ['$scope', '$http', '$window', 'UserServic
     $scope.editedPassword = false;
     $scope.states = [];
     $scope.selectedState = '';
-    $scope.loggedInUser = $scope.UserService.askForCurrentUser();
+    $scope.loggedInUser = $scope.UserService.watchCurrentUser();
 
-    //var id = $scope.loggedInUser.factoryUserId;
-    var id = 1;
+    var id = $scope.loggedInUser.factoryUserId;
+    console.log('id: ', id);
+    //var id = 1;
+
+    // antoinette's test code
+    //var self = this; // because 'this' could be changed by an outside caller
+    //self.data;
+
+    // some instance data that we can test
+    //self.testData = [
+    //    {message: 'I love unit testing', status: true},
+    //    {message: 'I will use this info for evil', status: false}
+    //];
+
+    // a function we can test
+    //self.uselessMethod = function() {
+    //    return 8;
+    //};
+
+    // an http request we can test via mocks
+    //$http.get('/datRoute').then(function(response){
+    //    self.data = response.data;
+    //});
+
+    //end of antoinette's test code
 
     retrieveUser(id);
     getStates();
@@ -29,6 +52,7 @@ myApp.controller('AccountController', ['$scope', '$http', '$window', 'UserServic
     function retrieveUser(id) {
         //console.log('id: ', id);
         $http.get('/account/' + id).then(function(response) {
+            console.log(response.data);
             if (response.data) {
                 $scope.user = response.data[0];
                 $scope.selectedState = response.data[0].state_id;
@@ -64,10 +88,15 @@ myApp.controller('AccountController', ['$scope', '$http', '$window', 'UserServic
             };
 
             $http.put('/account/' + id, data).then(function(response){
-                $scope.edited = true;
-                $scope.showList = true;
-                $scope.showForm = false;
-                retrieveUser(id);
+                if (response.data) {
+                    $scope.edited = true;
+                    $scope.showList = true;
+                    $scope.showForm = false;
+                    retrieveUser(id);
+                } else {
+                    console.log('failed to get account route');
+                    $window.location.href = '/';
+                }
             });
         }
     };
@@ -93,7 +122,12 @@ myApp.controller('AccountController', ['$scope', '$http', '$window', 'UserServic
             };
 
             $http.put('/account/password/' + id, data).then(function(response){
-                $scope.editedPassword = true;
+                if (response.data) {
+                    $scope.editedPassword = true;
+                } else {
+                console.log('failed to get account route');
+                $window.location.href = '/';
+                }
             });
         }
     };

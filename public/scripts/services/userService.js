@@ -1,24 +1,31 @@
-myApp.factory('UserService', ['$http', '$window', function($http, $window) {
-
-
-    var CurrentUser;
+myApp.factory('UserService', ['$http', '$window', '$localStorage', '$sessionStorage', function($http, $window, $localStorage, $sessionStorage) {
+    var CurrentUser = {
+        isLogged: false,
+        factoryUserName: undefined,
+        factoryFirstName: undefined,
+        factoryUserId: undefined
+    };
 
     function returnCurrentUser() {
         return CurrentUser;
     }
 
-
     function login(user) {
-        console.log(user);
         var promise = $http.post('/', user).then(function (response) {
-            console.log(response);
-            CurrentUser = {
-                isLogged: true,
-                factoryUserName: response.data.email,
-                factoryFirstName: response.data.first_name,
-                factoryUserId: response.data.user_id
-            };
-            console.log(CurrentUser);
+            if (response.data === false) {
+                console.log("Incorrect email/password");
+                return response.data;
+            } else {
+                CurrentUser = {
+                    isLogged: true,
+                    factoryUserName: response.data.email,
+                    factoryFirstName: response.data.first_name,
+                    factoryUserId: response.data.user_id
+                };
+                persistSession();
+                return response.data;
+            }
+            console.log("CurrentUser inside Login:", CurrentUser);
         });
         return promise;
     }
@@ -26,22 +33,39 @@ myApp.factory('UserService', ['$http', '$window', function($http, $window) {
     function register(user) {
         console.log(user);
         var promise = $http.post('/register', user).then(function (response) {
-            console.log(response.data);
             CurrentUser = {
                 isLogged: true,
                 factoryUserName: response.data.email,
                 factoryFirstName: response.data.first_name,
                 factoryUserId: response.data.user_id
             };
-            console.log(CurrentUser);
+            persistSession();
         });
         return promise;
     }
 
     function logOut() {
-        CurrentUser = undefined;
+        CurrentUser = {
+            isLogged: false,
+            factoryUserName: undefined,
+            factoryFirstName: undefined,
+            factoryUserId: undefined
+        };
+        delete $localStorage.CurrentUser;
         $window.location.href = '/#/home';
     }
+
+    function persistSession() {
+        $localStorage.CurrentUser = CurrentUser;
+    }
+
+    function restoreSession() {
+        if($localStorage.CurrentUser != undefined) {
+            CurrentUser = $localStorage.CurrentUser;
+        }
+    }
+
+    restoreSession();
 
     var publicFunctions = {
         askForCurrentUser: function() {
@@ -56,11 +80,11 @@ myApp.factory('UserService', ['$http', '$window', function($http, $window) {
         logOutUser: function() {
             return logOut();
         },
+        getUser: function() {
+            return getUserData();
+        },
         watchCurrentUser: returnCurrentUser
-
     };
 
     return publicFunctions;
-
-
 }]);

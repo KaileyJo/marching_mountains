@@ -1,20 +1,26 @@
-myApp.controller('LoginController', ['$scope', 'UserService', '$mdDialog', '$window', '$location', function($scope, UserService, $mdDialog, $window, $location) {
-
-    console.log('inside login controller');
+myApp.controller('LoginController', ['$scope', 'UserService', '$mdDialog', '$mdMedia',
+'$window', '$location', function($scope, UserService, $mdDialog, $mdMedia, $window, $location) {
 
     $scope.UserService = UserService;
-
+    $scope.loginErrorMessage;
     $scope.loggedInUser;
 
     $scope.login = function(isValid) {
-        if(isValid) {
+        if (isValid) {
             var user = {
                 username: $scope.username,
                 password: $scope.password
             };
-            $scope.UserService.postLogin(user).then(function () {
-                $mdDialog.hide();
-            });
+            $scope.UserService.postLogin(user).then(
+                function (response) {
+                    if (response === false) {
+                        console.log("bad login");
+                        $scope.loginErrorMessage = 'Invalid Username or Password';
+                    } else {
+                        $mdDialog.hide();
+                    }
+                }
+            );
         }
 
     };
@@ -22,7 +28,6 @@ myApp.controller('LoginController', ['$scope', 'UserService', '$mdDialog', '$win
     $scope.register = function(isValid) {
         $mdDialog.hide();
         if (isValid) {
-            console.log("inside register function");
             var newUser = {
                 username: $scope.username,
                 password: $scope.password
@@ -34,14 +39,19 @@ myApp.controller('LoginController', ['$scope', 'UserService', '$mdDialog', '$win
         }
     };
 
-    $scope.closeModal = function() {
+    $scope.closeModal = function(ev) {
         $mdDialog.hide();
-    };
+        var useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen;
 
-    //$scope.$watch($scope.UserService.watchCurrentUser, function(newValue, oldValue){
-    //    $scope.loggedInUser = $scope.UserService.askForCurrentUser();
-    //
-    //});
+        $mdDialog.show({
+            templateUrl: '../views/templates/register.html',
+            controller: 'RegisterController',
+            parent: angular.element(document.body),
+            targetEvent: ev,
+            clickOutsideToClose: true,
+            fullscreen: useFullScreen
+        });
+    };
 
 
 }]);
